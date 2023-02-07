@@ -73,21 +73,18 @@ resource "aws_instance" "minecraft_server" {
     }
 
     connection {
-      user = "ubuntu"
       type = "ssh"
+      user = "ubuntu"
       private_key = "${file(var.private_key_path)}"
-
-      provisioner "remote-exec" {
-        inline = [
-          "sudo apt-get -y update",
-          "sudo apt-get -y install openjdk-8-jre-headless",
-          "mkdir data",
-          "cd data",
-          "mkdir inbox",
-          "cd .."
-        ]
-      }
+      host = self.public_ip
     }
+
+    provisioner "remote-exec" {
+      inline = [
+        "sudo apt-get -y update",
+        "sudo apt-get -y install openjdk-8-jre-headless",
+    ]
+  }
 }
 
 output "instance_ip_address" {
