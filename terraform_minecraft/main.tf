@@ -10,7 +10,7 @@ terraform {
 data "aws_ami" "ubuntu" {
     most_recent = true
 
-    filter {
+        filter {
         name   = "name"
         values = ["ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-*"]
     }
@@ -62,7 +62,7 @@ resource "aws_key_pair" "all" {
 
 resource "aws_instance" "minecraft_server" {
     ami = data.aws_ami.ubuntu.id
-    instance_type = "t2.small"
+    instance_type = "t2.micro"
     vpc_security_group_ids = [aws_security_group.mc_security_group.id]
     associate_public_ip_address = true
     key_name = aws_key_pair.all.key_name
@@ -72,6 +72,8 @@ resource "aws_instance" "minecraft_server" {
       Name = "My Minecraft Server"
     }
 
+  provisioner "remote-exec" {
+
     connection {
       type = "ssh"
       user = "ubuntu"
@@ -79,10 +81,12 @@ resource "aws_instance" "minecraft_server" {
       host = self.public_ip
     }
 
-    provisioner "remote-exec" {
-      inline = [
-        "sudo apt-get -y update",
-        "sudo apt-get -y install openjdk-8-jre-headless",
+    inline = [
+      "sudo apt-get -y update",
+      "sudo apt-get -y install openjdk-8-jre-headless",
+      "sudo mkdir environment",
+      "cd environment",
+      "sudo apt-get install python3"
     ]
   }
 }
