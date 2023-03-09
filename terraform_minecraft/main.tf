@@ -18,9 +18,11 @@ data "aws_ami" "ubuntu" {
     filter {
         name   = "virtualization-type"
         values = ["hvm"]
+
+        #Filter to pull only latest Ubuntu images.
     }
 
-    owners = ["099720109477"] # Canonical
+    owners = ["099720109477"]
 }
 
 resource "aws_security_group" "mc_security_group" {
@@ -66,38 +68,19 @@ resource "aws_instance" "minecraft_server" {
     vpc_security_group_ids = [aws_security_group.mc_security_group.id]
     associate_public_ip_address = true
     key_name = aws_key_pair.all.key_name
-    
+    user_data = <<-EOF
+      #!/bin/bash
+      sudo apt-get -y update
+      sudo apt-get -y install openjdk-8-jre-headless
+
+      wget -O server.jar https://launcher.mojang.com/v1/objects/c8f83c5655308435b3dcf03c06d9fe8740a77469/server.jar
+
+      java -Xmx1024< -Xms1024M -jar server.jar nogui
+      sed -i 's/eula=false/eula=true/' eula.txt
+      java -Xmx1024M -Xms1024M -jar server.jar nogui
+      
+      EOF
     tags = {
-      Environment = "Dev"
       Name = "My Minecraft Server"
     }
-
-  provisioner "remote-exec" {
-
-    connection {
-      type = "ssh"
-      user = "ubuntu"
-      private_key = "${file(var.private_key_path)}"
-      host = self.public_ip
-    }
-
-    inline = [
-      "sudo apt-get -y update",
-      "sudo apt-get -y install openjdk-8-jre-headless",
-
-      "sudo mkdir environment",
-      "cd environment",
-      "cd ..",
-
-      "sudo apt install screen",
-      "sudo ufw allow 25565",
-
-      "wget https://launcher.mojang.com/v1/objects/c8f83c5655308435b3dcf03c06d9fe8740a77469/server.jar"
-
-    ]
-  }
-}
-
-output "instance_ip_address" {
-  value = aws_instance.minecraft_server.public_ip
 }
