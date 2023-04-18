@@ -10,4 +10,4 @@ Once the configuration has been applied to your AWS Environment, connect to the 
 - Minecraft Server Version: https://www.minecraft.net/en-us/download/server
 
 Have fun with Minecraft, fully built by Terraform in AWS!
-[This project is currently a work in progress and does not result in a fully fuctioning MC server, yet...]
+[This project is currently a work in progress and does not result in a fully fuctioning MC server, yet.]
