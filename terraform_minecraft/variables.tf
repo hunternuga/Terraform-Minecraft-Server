@@ -7,3 +7,21 @@ variable "private_key_path" {
   default = "./aws_key"
 }
 #aws_key is here and at working directory since the ssh key should be created in the same working directory of your .tf config files.
+
+data "aws_ami" "ubuntu" {
+    most_recent = true
+
+        filter {
+        name   = "name"
+        values = ["ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-*"]
+    }
+
+    filter {
+        name   = "virtualization-type"
+        values = ["hvm"]
+
+        #Filter to pull only latest Ubuntu images.
+    }
+
+    owners = ["099720109477"]
+}
